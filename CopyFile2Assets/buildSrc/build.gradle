@@ -1,0 +1,13 @@
+apply plugin: 'groovy'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.tools.build:gradle:3.2.1'
+    implementation gradleApi()
+    implementation localGroovy()
+}
+
+repositories {
+    jcenter()
+    google()
+}
