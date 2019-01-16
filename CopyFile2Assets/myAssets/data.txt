@@ -1,1 +1,1 @@
-apk打包期间，插件CopyFiles2AssetsPlugin执行拷贝动作，将myAssets目录下的资源文件data.txt拷贝到assets目录
+我普普通通杀猪的
