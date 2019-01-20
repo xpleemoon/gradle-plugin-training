@@ -4,8 +4,15 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.xpleemoon.plugin.copyfiles2assets'
 
 files2Assets {
-    filesSrc "${project.rootDir.absolutePath}/myAssets"
-    excludeFiles '**/.git/**', '**/.gitignore', '**/data2.txt', '**test**'
+    excludeFiles '**/.git/**', '**/.gitignore', '**test**'//, '**/data2.txt'
+    from {
+        myAssets {
+            path = "${project.rootDir.absolutePath}/myAssets"
+        }
+        myData{
+            path = "${project.rootDir.absolutePath}/myData"
+        }
+    }
 }
 
 android {
