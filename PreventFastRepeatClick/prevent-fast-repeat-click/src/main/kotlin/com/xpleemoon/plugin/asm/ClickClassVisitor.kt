@@ -1,4 +1,4 @@
-package com.xpleemoon.plugin.click.asm
+package com.xpleemoon.plugin.asm
 
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Label

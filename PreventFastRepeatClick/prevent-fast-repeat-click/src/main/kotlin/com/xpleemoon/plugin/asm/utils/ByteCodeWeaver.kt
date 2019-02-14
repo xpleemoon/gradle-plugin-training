@@ -1,6 +1,6 @@
-package com.xpleemoon.plugin.click.asm.utils
+package com.xpleemoon.plugin.asm.utils
 
-import com.xpleemoon.plugin.click.asm.ClickClassVisitor
+import com.xpleemoon.plugin.asm.ClickClassVisitor
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import org.objectweb.asm.ClassReader

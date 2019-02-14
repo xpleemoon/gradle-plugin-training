@@ -1,10 +1,10 @@
-package com.xpleemoon.plugin.click.transform
+package com.xpleemoon.plugin.transform
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.android.ide.common.internal.WaitableExecutor
-import com.xpleemoon.plugin.click.asm.utils.weavePreventFastRepeatClick2ClassByteArray
-import com.xpleemoon.plugin.click.asm.utils.weavePreventFastRepeatClick2ClassFile
+import com.xpleemoon.plugin.asm.utils.weavePreventFastRepeatClick2ClassByteArray
+import com.xpleemoon.plugin.asm.utils.weavePreventFastRepeatClick2ClassFile
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FileUtils
 import java.io.File
