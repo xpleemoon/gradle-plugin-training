@@ -7,10 +7,18 @@
         tools:context=".MainActivity">
 
     <TextView
-            android:id="@+id/show_time_tv"
+            android:id="@+id/last_time_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="当前时间为："
+            android:text="上次点击时间：无"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="24sp"/>
+    <TextView
+            android:id="@+id/current_time_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="当前点击时间：无"
+            android:layout_below="@id/last_time_tv"
             android:textColor="@android:color/holo_red_dark"
             android:textSize="24sp"/>
     <Button

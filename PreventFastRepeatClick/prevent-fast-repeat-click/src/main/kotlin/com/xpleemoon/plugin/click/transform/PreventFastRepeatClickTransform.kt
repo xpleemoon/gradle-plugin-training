@@ -66,7 +66,6 @@ class PreventFastRepeatClickTransform : Transform() {
                     directoryInput.scopes,
                     Format.DIRECTORY
                 )
-                FileUtils.forceMkdir(destDir)
 
                 if (isIncremental) {
                     val srcDirPath = srcDir.absolutePath
@@ -96,7 +95,8 @@ class PreventFastRepeatClickTransform : Transform() {
     private fun transformJar(srcJar: File, destJar: File) {
 //        println("srcJar：${srcJar.absolutePath}，destJar：${destJar.absolutePath}")
 
-        // 防止文件目录不存在
+        destJar.deleteOnExit()
+        // 防止文件不存在
         FileUtils.touch(destJar)
 
         ZipOutputStream(FileOutputStream(destJar)).use { zos ->
@@ -123,6 +123,8 @@ class PreventFastRepeatClickTransform : Transform() {
     }
 
     private fun transformDir(srcDir: File, destDir: File) {
+        destDir.takeIf { it.exists() }?.mkdirs()
+
         val srcDirPath = srcDir.absolutePath
         val destDirPath = destDir.absolutePath
         srcDir.takeIf {
@@ -137,6 +139,8 @@ class PreventFastRepeatClickTransform : Transform() {
     }
 
     private fun transformFile(changedFile: File, destFile: File) {
+        destFile.parentFile.takeIf { it.exists() }?.mkdirs()
+
         weavePreventFastRepeatClick2ClassFile(changedFile, destFile)
     }
 }

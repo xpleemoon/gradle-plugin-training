@@ -18,5 +18,11 @@
       <version>3.3.0</version>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>com.android.tools.build</groupId>
+      <artifactId>gradle-api</artifactId>
+      <version>3.3.0</version>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 </project>

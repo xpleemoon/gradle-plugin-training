@@ -8,10 +8,13 @@ import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
+    private var lastClickTimes = 0L
+
     override fun onClick(v: View?) {
-        val currentTimes = "当前时间：${SystemClock.elapsedRealtime()}"
-        show_time_tv.text = currentTimes
-        Log.i("info_out", currentTimes)
+        last_time_tv.text = "上次点击时间：$lastClickTimes"
+        lastClickTimes = SystemClock.elapsedRealtime()
+        current_time_tv.text = "当前点击时间：$lastClickTimes"
+        Log.i("info_out", "${last_time_tv.text}，${current_time_tv.text}")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

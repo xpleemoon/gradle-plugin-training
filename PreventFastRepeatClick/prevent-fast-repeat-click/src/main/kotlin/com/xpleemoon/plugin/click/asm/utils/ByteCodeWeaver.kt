@@ -6,7 +6,6 @@ import org.apache.commons.io.IOUtils
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
 import java.io.File
-import java.io.FileOutputStream
 import java.io.InputStream
 
 /**
@@ -22,7 +21,7 @@ private fun isWeavable(fileName: String) = fileName.substringAfterLast('/').run 
 internal fun weavePreventFastRepeatClick2ClassFile(inputFile: File, outputFIle: File) {
     if (inputFile.isDirectory) return
 
-    // 防止文件目录不存在
+    // 防止文件不存在
     FileUtils.touch(outputFIle)
 
     if (isWeavable(inputFile.name)) {
@@ -30,11 +29,7 @@ internal fun weavePreventFastRepeatClick2ClassFile(inputFile: File, outputFIle: 
         val cw = ClassWriter(cr, ClassWriter.COMPUTE_MAXS)
         val cv = ClickClassVisitor(cw)
         cr.accept(cv, ClassReader.EXPAND_FRAMES)
-        FileOutputStream(outputFIle).run {
-            val codeBytes = cw.toByteArray()
-            write(codeBytes)
-            close()
-        }
+        outputFIle.writeBytes(cw.toByteArray())
     } else {
         FileUtils.copyFile(inputFile, outputFIle)
     }
