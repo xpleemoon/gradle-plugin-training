@@ -2,6 +2,7 @@ package com.xpleemoon.plugin.click.transform
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
+import com.android.ide.common.internal.WaitableExecutor
 import com.xpleemoon.plugin.click.asm.utils.weavePreventFastRepeatClick2ClassByteArray
 import com.xpleemoon.plugin.click.asm.utils.weavePreventFastRepeatClick2ClassFile
 import org.apache.commons.codec.digest.DigestUtils
@@ -22,17 +23,19 @@ class PreventFastRepeatClickTransform : Transform() {
 
     override fun getInputTypes(): MutableSet<QualifiedContent.ContentType> = TransformManager.CONTENT_CLASS
 
-    override fun isIncremental(): Boolean = true
-
     override fun getScopes(): MutableSet<in QualifiedContent.Scope> = TransformManager.SCOPE_FULL_PROJECT
+
+    override fun isIncremental(): Boolean = true
 
     override fun transform(transformInvocation: TransformInvocation?) {
         val outputProvider = transformInvocation?.outputProvider ?: return
-
-        val isIncremental = transformInvocation.isIncremental
-        if (!isIncremental) {
-            outputProvider.deleteAll()
+        val isIncremental = transformInvocation.isIncremental.also {
+            // 非增量，清空输出目录，防止文件污染
+            if (!it) {
+                outputProvider.deleteAll()
+            }
         }
+        val waitableExecutor = WaitableExecutor.useGlobalSharedThreadPool()
 
         transformInvocation.inputs.forEach { transformInput ->
             transformInput.jarInputs.forEach { jarInput ->
@@ -48,13 +51,15 @@ class PreventFastRepeatClickTransform : Transform() {
                     when (jarInput.status) {
                         Status.NOTCHANGED -> {
                         }
-                        Status.ADDED, Status.CHANGED -> transformJar(srcJar, destJar)
+                        Status.ADDED, Status.CHANGED -> waitableExecutor.execute {
+                            transformJar(srcJar, destJar)
+                        }
                         Status.REMOVED -> FileUtils.forceDeleteOnExit(destJar)
                         else -> {
                         }
                     }
                 } else {
-                    transformJar(srcJar, destJar)
+                    waitableExecutor.execute { transformJar(srcJar, destJar) }
                 }
             }
 
@@ -76,8 +81,7 @@ class PreventFastRepeatClickTransform : Transform() {
                         when (status) {
                             Status.NOTCHANGED -> {
                             }
-                            Status.ADDED, Status.CHANGED -> {
-                                FileUtils.touch(destFile)
+                            Status.ADDED, Status.CHANGED -> waitableExecutor.execute {
                                 transformFile(changedFile, destFile)
                             }
                             Status.REMOVED -> FileUtils.forceDeleteOnExit(destFile)
@@ -86,16 +90,15 @@ class PreventFastRepeatClickTransform : Transform() {
                         }
                     }
                 } else {
-                    transformDir(directoryInput.file, destDir)
+                    waitableExecutor.execute { transformDir(directoryInput.file, destDir) }
                 }
             }
         }
+        waitableExecutor.waitForTasksWithQuickFail<Any?>(true)
     }
 
     private fun transformJar(srcJar: File, destJar: File) {
-//        println("srcJar：${srcJar.absolutePath}，destJar：${destJar.absolutePath}")
-
-        destJar.deleteOnExit()
+        FileUtils.forceDeleteOnExit(destJar)
         // 防止文件不存在
         FileUtils.touch(destJar)
 
@@ -130,9 +133,7 @@ class PreventFastRepeatClickTransform : Transform() {
         srcDir.takeIf {
             it.isDirectory
         }?.walk()?.forEach { srcFile ->
-            //            println("文件名：${srcFile.name}，文件路径：${srcFile.absolutePath}")
             val destFilePath = srcFile.absolutePath.replace(srcDirPath, destDirPath)
-//            println("srcFile：${srcFile.absolutePath}，destFilePath：$destFilePath")
             val destFile = File(destFilePath)
             weavePreventFastRepeatClick2ClassFile(srcFile, destFile)
         }
