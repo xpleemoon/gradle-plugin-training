@@ -54,7 +54,7 @@ class PreventFastRepeatClickTransform : Transform() {
                         Status.ADDED, Status.CHANGED -> waitableExecutor.execute {
                             transformJar(srcJar, destJar)
                         }
-                        Status.REMOVED -> FileUtils.forceDeleteOnExit(destJar)
+                        Status.REMOVED -> destJar.takeIf { destJar.exists() }?.delete()
                         else -> {
                         }
                     }
@@ -84,7 +84,7 @@ class PreventFastRepeatClickTransform : Transform() {
                             Status.ADDED, Status.CHANGED -> waitableExecutor.execute {
                                 transformFile(changedFile, destFile)
                             }
-                            Status.REMOVED -> FileUtils.forceDeleteOnExit(destFile)
+                            Status.REMOVED -> destFile.takeIf { it.exists() }?.delete()
                             else -> {
                             }
                         }
@@ -98,9 +98,12 @@ class PreventFastRepeatClickTransform : Transform() {
     }
 
     private fun transformJar(srcJar: File, destJar: File) {
-        FileUtils.forceDeleteOnExit(destJar)
-        // 防止文件不存在
-        FileUtils.touch(destJar)
+        if (destJar.exists()) {
+            destJar.delete()
+        } else {
+            // 防止文件目录不存在
+            destJar.parentFile.takeIf { !it.exists() }?.mkdirs()
+        }
 
         ZipOutputStream(FileOutputStream(destJar)).use { zos ->
             val crc32 = CRC32()
@@ -126,7 +129,8 @@ class PreventFastRepeatClickTransform : Transform() {
     }
 
     private fun transformDir(srcDir: File, destDir: File) {
-        destDir.takeIf { it.exists() }?.mkdirs()
+        // 防止文件目录不存在
+        destDir.takeIf { !it.exists() }?.mkdirs()
 
         val srcDirPath = srcDir.absolutePath
         val destDirPath = destDir.absolutePath
@@ -140,8 +144,6 @@ class PreventFastRepeatClickTransform : Transform() {
     }
 
     private fun transformFile(changedFile: File, destFile: File) {
-        destFile.parentFile.takeIf { it.exists() }?.mkdirs()
-
         weavePreventFastRepeatClick2ClassFile(changedFile, destFile)
     }
 }

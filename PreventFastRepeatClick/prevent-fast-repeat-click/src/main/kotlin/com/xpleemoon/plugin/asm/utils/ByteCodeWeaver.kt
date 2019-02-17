@@ -18,20 +18,20 @@ private fun isWeavable(fileName: String) = fileName.substringAfterLast('/').run 
             && !Regex("^R\\\$(\\S*).class\$").matches(this)
 }
 
-internal fun weavePreventFastRepeatClick2ClassFile(inputFile: File, outputFIle: File) {
+internal fun weavePreventFastRepeatClick2ClassFile(inputFile: File, outputFile: File) {
     if (inputFile.isDirectory) return
 
-    // 防止文件不存在
-    FileUtils.touch(outputFIle)
+    // 防止文件目录不存在
+    outputFile.parentFile.takeIf { !it.exists() }?.mkdirs()
 
     if (isWeavable(inputFile.name)) {
         val cr = ClassReader(inputFile.readBytes())
         val cw = ClassWriter(cr, ClassWriter.COMPUTE_MAXS)
         val cv = ClickClassVisitor(cw)
         cr.accept(cv, ClassReader.EXPAND_FRAMES)
-        outputFIle.writeBytes(cw.toByteArray())
+        outputFile.writeBytes(cw.toByteArray())
     } else {
-        FileUtils.copyFile(inputFile, outputFIle)
+        FileUtils.copyFile(inputFile, outputFile)
     }
 }
 
