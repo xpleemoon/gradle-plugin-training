@@ -5,8 +5,9 @@ import com.android.build.gradle.internal.pipeline.TransformManager
 import com.android.ide.common.internal.WaitableExecutor
 import com.xpleemoon.plugin.asm.utils.weavePreventFastRepeatClick2ClassByteArray
 import com.xpleemoon.plugin.asm.utils.weavePreventFastRepeatClick2ClassFile
+import com.xpleemoon.plugin.extension.PreventFastRepeatClickExtension
 import org.apache.commons.codec.digest.DigestUtils
-import org.apache.commons.io.FileUtils
+import org.gradle.api.Project
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.CRC32
@@ -18,7 +19,16 @@ import java.util.zip.ZipOutputStream
 /**
  * @author xpleemoon
  */
-class PreventFastRepeatClickTransform : Transform() {
+class PreventFastRepeatClickTransform(project: Project) :
+    Transform() {
+    /**
+     * 由于gradle编译有三个阶段（init，config和execute），同时extension类型通常是在gradle config阶段完成赋值的，
+     * 所以为了安全使用extension，需要确保已经完成config。
+     * 而当前类的[transform]方法处于gradle execute阶段，因此在该方法中可以安全的使用当前extension
+     */
+    private val preventFastRepeatClickExtension =
+        project.extensions.create("preventFastRepeatClick", PreventFastRepeatClickExtension::class.java)
+
     override fun getName(): String = javaClass.simpleName
 
     override fun getInputTypes(): MutableSet<QualifiedContent.ContentType> = TransformManager.CONTENT_CLASS
@@ -110,7 +120,8 @@ class PreventFastRepeatClickTransform : Transform() {
             val srcZipFile = ZipFile(srcJar)
             srcZipFile.entries().toList().forEach { srcZipEntry ->
                 val newBytes = weavePreventFastRepeatClick2ClassByteArray(
-                    srcZipEntry.name to srcZipFile.getInputStream(srcZipEntry)
+                    srcZipEntry.name to srcZipFile.getInputStream(srcZipEntry),
+                    preventFastRepeatClickExtension.intervalTimeMs
                 )
                 crc32.reset()
                 crc32.update(newBytes)
@@ -139,11 +150,11 @@ class PreventFastRepeatClickTransform : Transform() {
         }?.walk()?.forEach { srcFile ->
             val destFilePath = srcFile.absolutePath.replace(srcDirPath, destDirPath)
             val destFile = File(destFilePath)
-            weavePreventFastRepeatClick2ClassFile(srcFile, destFile)
+            weavePreventFastRepeatClick2ClassFile(srcFile, destFile, preventFastRepeatClickExtension.intervalTimeMs)
         }
     }
 
     private fun transformFile(changedFile: File, destFile: File) {
-        weavePreventFastRepeatClick2ClassFile(changedFile, destFile)
+        weavePreventFastRepeatClick2ClassFile(changedFile, destFile, preventFastRepeatClickExtension.intervalTimeMs)
     }
 }

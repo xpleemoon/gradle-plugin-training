@@ -16,6 +16,10 @@ buildscript {
     }
 }
 
+preventFastRepeatClick {
+    intervalTimeMs 500
+}
+
 android {
     compileSdkVersion 28
     defaultConfig {

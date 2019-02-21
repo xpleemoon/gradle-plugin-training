@@ -8,7 +8,7 @@ import org.objectweb.asm.Opcodes
 /**
  * @author xpleemoon
  */
-class ClickClassVisitor(cv: ClassVisitor) : ClassVisitor(Opcodes.ASM6, cv) {
+class ClickClassVisitor(cv: ClassVisitor, private val clickIntervalTimeMs: Long) : ClassVisitor(Opcodes.ASM6, cv) {
     private var nameOfOnClickListenerImpl: String? = null
 
     override fun visit(
@@ -46,11 +46,12 @@ class ClickClassVisitor(cv: ClassVisitor) : ClassVisitor(Opcodes.ASM6, cv) {
                     super.visitCode()
 
                     mv.visitVarInsn(Opcodes.ALOAD, 1)
+                    mv.visitLdcInsn(clickIntervalTimeMs)
                     mv.visitMethodInsn(
                         Opcodes.INVOKESTATIC,
                         "com/xpleemoon/plugin/weave/FastRepeatClickUtilsKt",
                         "isPreventFastRepeatClick",
-                        "(Landroid/view/View;)Z",
+                        "(Landroid/view/View;J)Z",
                         false
                     )
                     val weave_label = Label()
@@ -58,7 +59,7 @@ class ClickClassVisitor(cv: ClassVisitor) : ClassVisitor(Opcodes.ASM6, cv) {
                     mv.visitInsn(Opcodes.RETURN)
                     mv.visitLabel(weave_label)
 
-                    println("Complete bytecode weaving：向$nameOfOnClickListenerImpl.${name}方法织入快速点击拦截")
+                    println("Complete bytecode weaving：向$nameOfOnClickListenerImpl.${name}方法织入快速点击拦截，拦截时间为$clickIntervalTimeMs")
                 }
             }
         } else {
