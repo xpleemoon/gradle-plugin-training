@@ -121,7 +121,7 @@ class PreventFastRepeatClickTransform(project: Project) :
             srcZipFile.entries().toList().forEach { srcZipEntry ->
                 val newBytes = weavePreventFastRepeatClick2ClassByteArray(
                     srcZipEntry.name to srcZipFile.getInputStream(srcZipEntry),
-                    preventFastRepeatClickExtension.intervalTimeMs
+                    preventFastRepeatClickExtension.defaultIntervalTimeMs
                 )
                 crc32.reset()
                 crc32.update(newBytes)
@@ -153,7 +153,7 @@ class PreventFastRepeatClickTransform(project: Project) :
             weavePreventFastRepeatClick2ClassFile(
                 srcFile,
                 destFile,
-                preventFastRepeatClickExtension.intervalTimeMs
+                preventFastRepeatClickExtension.defaultIntervalTimeMs
             )
         }
     }
@@ -162,7 +162,7 @@ class PreventFastRepeatClickTransform(project: Project) :
         weavePreventFastRepeatClick2ClassFile(
             changedFile,
             destFile,
-            preventFastRepeatClickExtension.intervalTimeMs
+            preventFastRepeatClickExtension.defaultIntervalTimeMs
         )
     }
 }

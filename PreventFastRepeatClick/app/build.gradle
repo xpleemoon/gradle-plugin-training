@@ -17,7 +17,7 @@ buildscript {
 }
 
 preventFastRepeatClick {
-    intervalTimeMs 500
+    defaultIntervalTimeMs 500
 }
 
 android {

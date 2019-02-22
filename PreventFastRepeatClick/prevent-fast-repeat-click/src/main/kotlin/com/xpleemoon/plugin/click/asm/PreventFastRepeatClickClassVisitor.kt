@@ -1,14 +1,12 @@
 package com.xpleemoon.plugin.click.asm
 
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.Label
-import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
+import org.objectweb.asm.*
 
 /**
  * @author xpleemoon
  */
-class PreventFastRepeatClickClassVisitor(cv: ClassVisitor, private val clickIntervalTimeMs: Long) : ClassVisitor(Opcodes.ASM6, cv) {
+class PreventFastRepeatClickClassVisitor(cv: ClassVisitor, private val defaultIntervalTimeMs: Long) :
+    ClassVisitor(Opcodes.ASM6, cv) {
     private var nameOfOnClickListenerImpl: String? = null
 
     override fun visit(
@@ -42,25 +40,53 @@ class PreventFastRepeatClickClassVisitor(cv: ClassVisitor, private val clickInte
             && desc.equals("(Landroid/view/View;)V")
         ) {
             object : MethodVisitor(Opcodes.ASM6, mv) {
+                private var isExcludeWeave = false
+                private var intervalTimeMsOfAnnotation: Long? = null
+
+                override fun visitAnnotation(desc: String?, visible: Boolean): AnnotationVisitor {
+                    val av = super.visitAnnotation(desc, visible)
+                    return if (desc.equals("Lcom/xpleemoon/plugin/click/annotation/PreventFastRepeatClick;")) {
+                        object : AnnotationVisitor(Opcodes.ASM6, av) {
+                            override fun visit(name: String?, value: Any?) {
+                                super.visit(name, value)
+                                if (name.equals("intervalTimeMs")) {
+                                    intervalTimeMsOfAnnotation = value as? Long
+                                }
+                                when (name) {
+                                    "isExclude" -> isExcludeWeave = value as Boolean
+                                    "intervalTimeMs" -> intervalTimeMsOfAnnotation = value as Long
+                                }
+                            }
+                        }
+                    } else {
+                        av
+                    }
+                }
+
                 override fun visitCode() {
                     super.visitCode()
 
-                    mv.visitVarInsn(Opcodes.ALOAD, 1)
-                    mv.visitLdcInsn(clickIntervalTimeMs)
-                    mv.visitMethodInsn(
-                        Opcodes.INVOKESTATIC,
-                        "com/xpleemoon/plugin/click/utils/FastRepeatClickUtilsKt",
-                        "isPreventFastRepeatClick",
-                        "(Landroid/view/View;J)Z",
-                        false
-                    )
-                    @Suppress("LocalVariableName")
-                    val prevent_fast_repeat_click_label = Label()
-                    mv.visitJumpInsn(Opcodes.IFEQ, prevent_fast_repeat_click_label)
-                    mv.visitInsn(Opcodes.RETURN)
-                    mv.visitLabel(prevent_fast_repeat_click_label)
+                    val intervalTimeMs = intervalTimeMsOfAnnotation ?: defaultIntervalTimeMs
+                    if (!isExcludeWeave && intervalTimeMs > 0) {
+                        mv.visitVarInsn(Opcodes.ALOAD, 1)
+                        mv.visitLdcInsn(intervalTimeMs)
+                        mv.visitMethodInsn(
+                            Opcodes.INVOKESTATIC,
+                            "com/xpleemoon/plugin/click/utils/FastRepeatClickUtilsKt",
+                            "isPreventFastRepeatClick",
+                            "(Landroid/view/View;J)Z",
+                            false
+                        )
+                        @Suppress("LocalVariableName")
+                        val prevent_fast_repeat_click_label = Label()
+                        mv.visitJumpInsn(Opcodes.IFEQ, prevent_fast_repeat_click_label)
+                        mv.visitInsn(Opcodes.RETURN)
+                        mv.visitLabel(prevent_fast_repeat_click_label)
 
-                    println("Complete bytecode weaving：向$nameOfOnClickListenerImpl.${name}方法织入快速点击拦截，拦截时间为$clickIntervalTimeMs")
+                        println("prevent-fast-repeat-click：向$nameOfOnClickListenerImpl.${name}方法织入快速点击拦截字节码，intervalTimeMs = $intervalTimeMs")
+                    } else {
+                        println("prevent-fast-repeat-click：$nameOfOnClickListenerImpl.${name}方法不做字节码织入处理，isExclude = $isExcludeWeave, intervalTimeMs = $intervalTimeMs")
+                    }
                 }
             }
         } else {

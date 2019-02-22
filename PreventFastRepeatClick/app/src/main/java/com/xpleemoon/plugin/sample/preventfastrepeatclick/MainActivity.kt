@@ -5,11 +5,13 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.view.View
+import com.xpleemoon.plugin.click.annotation.PreventFastRepeatClick
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private var lastClickTimes = 0L
 
+    @PreventFastRepeatClick(intervalTimeMs = 600L)
     override fun onClick(v: View?) {
         last_time_tv.text = "上次点击时间：$lastClickTimes"
         lastClickTimes = SystemClock.elapsedRealtime()
