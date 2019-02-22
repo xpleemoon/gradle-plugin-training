@@ -1,9 +1,9 @@
-package com.xpleemoon.plugin
+package com.xpleemoon.plugin.click
 
 import com.android.build.gradle.AppExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import com.xpleemoon.plugin.transform.PreventFastRepeatClickTransform
+import com.xpleemoon.plugin.click.transform.PreventFastRepeatClickTransform
 
 
 /**

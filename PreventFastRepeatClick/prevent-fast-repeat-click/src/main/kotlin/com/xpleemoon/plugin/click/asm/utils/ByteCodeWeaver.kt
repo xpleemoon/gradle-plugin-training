@@ -1,6 +1,6 @@
-package com.xpleemoon.plugin.asm.utils
+package com.xpleemoon.plugin.click.asm.utils
 
-import com.xpleemoon.plugin.asm.ClickClassVisitor
+import com.xpleemoon.plugin.click.asm.PreventFastRepeatClickClassVisitor
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import org.objectweb.asm.ClassReader
@@ -27,7 +27,7 @@ internal fun weavePreventFastRepeatClick2ClassFile(inputFile: File, outputFile: 
     if (isWeavable(inputFile.name)) {
         val cr = ClassReader(inputFile.readBytes())
         val cw = ClassWriter(cr, ClassWriter.COMPUTE_MAXS)
-        val cv = ClickClassVisitor(cw, clickIntervalTimeMs)
+        val cv = PreventFastRepeatClickClassVisitor(cw, clickIntervalTimeMs)
         cr.accept(cv, ClassReader.EXPAND_FRAMES)
         outputFile.writeBytes(cw.toByteArray())
     } else {
@@ -40,7 +40,7 @@ internal fun weavePreventFastRepeatClick2ClassByteArray(name2InputStream: Pair<S
     return if (isWeavable(name)) {
         val cr = ClassReader(inputStream)
         val cw = ClassWriter(cr, ClassWriter.COMPUTE_MAXS)
-        val cv = ClickClassVisitor(cw, clickIntervalTimeMs)
+        val cv = PreventFastRepeatClickClassVisitor(cw, clickIntervalTimeMs)
         cr.accept(cv, ClassReader.EXPAND_FRAMES)
         cw.toByteArray()
     } else {

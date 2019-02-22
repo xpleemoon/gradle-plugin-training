@@ -1,1 +1,1 @@
-include ':app', ':prevent-fast-repeat-click'
+include ':app', ':prevent-fast-repeat-click', ':prevent-fast-repeat-click-api'

@@ -1,4 +1,4 @@
-package com.xpleemoon.plugin.extension
+package com.xpleemoon.plugin.click.extension
 
 import org.gradle.api.tasks.Input
 

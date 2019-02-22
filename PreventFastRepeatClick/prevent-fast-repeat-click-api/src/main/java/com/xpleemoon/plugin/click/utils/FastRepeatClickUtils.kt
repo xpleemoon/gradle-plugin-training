@@ -1,7 +1,6 @@
-package com.xpleemoon.plugin.weave
+package com.xpleemoon.plugin.click.utils
 
 import android.os.SystemClock
-import android.support.v4.util.LruCache
 import android.view.View
 
 private val lastClickLru = LruCache<String, Long>(8)

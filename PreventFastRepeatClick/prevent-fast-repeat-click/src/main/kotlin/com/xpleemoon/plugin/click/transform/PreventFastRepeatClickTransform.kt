@@ -1,11 +1,11 @@
-package com.xpleemoon.plugin.transform
+package com.xpleemoon.plugin.click.transform
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.android.ide.common.internal.WaitableExecutor
-import com.xpleemoon.plugin.asm.utils.weavePreventFastRepeatClick2ClassByteArray
-import com.xpleemoon.plugin.asm.utils.weavePreventFastRepeatClick2ClassFile
-import com.xpleemoon.plugin.extension.PreventFastRepeatClickExtension
+import com.xpleemoon.plugin.click.asm.utils.weavePreventFastRepeatClick2ClassByteArray
+import com.xpleemoon.plugin.click.asm.utils.weavePreventFastRepeatClick2ClassFile
+import com.xpleemoon.plugin.click.extension.PreventFastRepeatClickExtension
 import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Project
 import java.io.File
@@ -150,11 +150,19 @@ class PreventFastRepeatClickTransform(project: Project) :
         }?.walk()?.forEach { srcFile ->
             val destFilePath = srcFile.absolutePath.replace(srcDirPath, destDirPath)
             val destFile = File(destFilePath)
-            weavePreventFastRepeatClick2ClassFile(srcFile, destFile, preventFastRepeatClickExtension.intervalTimeMs)
+            weavePreventFastRepeatClick2ClassFile(
+                srcFile,
+                destFile,
+                preventFastRepeatClickExtension.intervalTimeMs
+            )
         }
     }
 
     private fun transformFile(changedFile: File, destFile: File) {
-        weavePreventFastRepeatClick2ClassFile(changedFile, destFile, preventFastRepeatClickExtension.intervalTimeMs)
+        weavePreventFastRepeatClick2ClassFile(
+            changedFile,
+            destFile,
+            preventFastRepeatClickExtension.intervalTimeMs
+        )
     }
 }
