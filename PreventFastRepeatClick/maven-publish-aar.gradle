@@ -1,0 +1,111 @@
+apply plugin: "maven-publish"
+
+def siteUrl = 'https://github.com/xpleemoon/gradle-plugin-training/tree/master/PreventFastRepeatClick'
+def gitUrl = 'git@github.com:xpleemoon/gradle-plugin-training.git'
+
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            //指定group/artifact/version信息，可以不填。默认使用项目group/name/version作为groupId/artifactId/version
+            groupId 'com.xpleemoon.plugin'
+            artifactId project.name
+            version project.version
+
+            //配置上传aar
+            artifact bundleReleaseAar
+            //配置上传源码
+            artifact sourceJar
+
+            pom {
+                name = project.name
+//                description = "A demonstration of Maven POM customization"
+                url = siteUrl
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "xpleemoon"
+                        name = "xpleemoon"
+                        email = "xpleemoon@gmail.com"
+                    }
+                }
+                scm {
+                    connection = gitUrl
+                    developerConnection = gitUrl
+                    url = siteUrl
+                }
+            }
+
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+
+                // List all compile dependencies and write to POM
+                configurations.compile.getAllDependencies().each { Dependency dep ->
+                    getNodeFromDependency(dep, dependenciesNode, false)
+                }
+                configurations.api.getAllDependencies().each { Dependency dep ->
+                    getNodeFromDependency(dep, dependenciesNode, false)
+                }
+                configurations.implementation.getAllDependencies().each { Dependency dep ->
+                    getNodeFromDependency(dep, dependenciesNode, true)
+                }
+                configurations.runtimeOnly.getAllDependencies().each { Dependency dep ->
+                    getNodeFromDependency(dep, dependenciesNode, true)
+                }
+            }
+
+        }
+    }
+
+    repositories {
+//        maven {
+//            //指定要上传的maven私服仓库
+//            url = "maven repo url"
+//            //认证用户和密码
+//            credentials {
+//                username 'admin'
+//                password '123456'
+//            }
+//        }
+        maven {
+            url uri("$rootDir/repo")
+        }
+    }
+}
+
+static def getNodeFromDependency(Dependency dep, def dependenciesNode, boolean isImplementation) {
+    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+        return // ignore invalid dependencies
+
+    def dependencyNode = dependenciesNode.appendNode('dependency')
+    dependencyNode.appendNode('groupId', dep.group)
+    dependencyNode.appendNode('artifactId', dep.name)
+    dependencyNode.appendNode('version', dep.version)
+    if (isImplementation) {
+        dependencyNode.appendNode('scope', 'runtime')
+    }
+
+    if (!dep.transitive) {
+        // If this dependency is transitive, we should force exclude all its dependencies them from the POM
+        def exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+        exclusionNode.appendNode('groupId', '*')
+        exclusionNode.appendNode('artifactId', '*')
+    } else if (!dep.properties.excludeRules.empty) {
+        // Otherwise add specified exclude rules
+        def exclusionsNode = dependencyNode.appendNode('exclusions')
+        dep.properties.excludeRules.each { ExcludeRule rule ->
+            def exclusionNode = exclusionsNode.appendNode('exclusion')
+            exclusionNode.appendNode('groupId', rule.group ?: '*')
+            exclusionNode.appendNode('artifactId', rule.module ?: '*')
+        }
+    }
+}

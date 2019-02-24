@@ -1,0 +1,64 @@
+apply plugin: "maven-publish"
+
+def siteUrl = 'https://github.com/xpleemoon/gradle-plugin-training/tree/master/PreventFastRepeatClick'
+def gitUrl = 'git@github.com:xpleemoon/gradle-plugin-training.git'
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        jar(MavenPublication) {
+            //指定group/artifact/version信息，可以不填。默认使用项目group/name/version作为groupId/artifactId/version
+            groupId 'com.xpleemoon.plugin'
+            artifactId project.name
+            version project.version
+
+            //配置上传jar
+            from components.java
+            //配置上传源码
+            artifact sourceJar
+
+            pom {
+                name = project.name
+//                description = "A gradle plugin weave byte code about prevent fast repeat click"
+                url = siteUrl
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "xpleemoon"
+                        name = "xpleemoon"
+                        email = "xpleemoon@gmail.com"
+                    }
+                }
+                scm {
+                    connection = gitUrl
+                    developerConnection = gitUrl
+                    url = siteUrl
+                }
+            }
+        }
+    }
+
+    repositories {
+//        maven {
+//            //指定要上传的maven私服仓库
+//            url = "maven repo url"
+//            //认证用户和密码
+//            credentials {
+//                username 'admin'
+//                password '123456'
+//            }
+//        }
+        maven {
+            url uri("$rootDir/repo")
+        }
+    }
+}
