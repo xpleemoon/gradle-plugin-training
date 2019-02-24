@@ -20,6 +20,8 @@ repositories {
     maven {
         url uri("$rootDir/repo")
     }
+    google()
+    jcenter()
 }
 
 preventFastRepeatClick {
