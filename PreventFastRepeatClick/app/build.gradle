@@ -3,27 +3,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'xpleemoon-prevent-fast-repeat-click'
 
-buildscript {
-    repositories {
-        maven {
-            url uri("$rootDir/repo")
-        }
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.xpleemoon.plugin:prevent-fast-repeat-click:0.1.0'
-    }
-}
-
-repositories {
-    maven {
-        url uri("$rootDir/repo")
-    }
-    google()
-    jcenter()
-}
-
 preventFastRepeatClick {
     defaultIntervalTimeMs 500
 }
