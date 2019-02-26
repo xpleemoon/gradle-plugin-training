@@ -1,10 +1,10 @@
-## PreventFastRepeatClick
+## PreventFastRepeatClick[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg?)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 SDK|prevent-fast-repeat-click|prevent-fast-repeat-click-api
 :---|:---:|:---:
 latest version|[ ![Download](https://api.bintray.com/packages/xpleemoon/maven/prevent-fast-repeat-click/images/download.svg) ](https://bintray.com/xpleemoon/maven/prevent-fast-repeat-click/_latestVersion)|[ ![Download](https://api.bintray.com/packages/xpleemoon/maven/prevent-fast-repeat-click-api/images/download.svg) ](https://bintray.com/xpleemoon/maven/prevent-fast-repeat-click-api/_latestVersion)
 
-这是一个gradle plugin，在app编译的transform阶段，通过[ASM](https://asm.ow2.io)对project中所有的`OnClickListener.onClick()`进行字节码织入，织入的字节码是关于防止`View`的快速重复点击。
+这是一个gradle plugin，用于在app编译的transform阶段，通过[ASM](https://asm.ow2.io)对project中所有的`OnClickListener.onClick()`进行字节码织入，织入的字节码是关于防止`View`的快速重复点击。
 
 > 插件对于防止快速重复点击的默认间隔时间设定是300ms，若要更改默认时间或针对某些特定View的点击还有特殊需求（比如设置特定时间或者不拦截），可参考[进阶用法](#进阶用法)
 
