@@ -2,7 +2,7 @@ package com.xpleemoon.plugin.click.extension
 
 import org.gradle.api.tasks.Input
 
-private const val DEFAULT_PREVENT_FAST_REPEAT_CLICK_INTERVAL_TIME_MS = 300L
+private const val DEFAULT_PREVENT_FAST_REPEAT_CLICK_INTERVAL_TIME_MS = 500L
 
 /**
  * 点击拦截extension配置类
@@ -11,6 +11,12 @@ private const val DEFAULT_PREVENT_FAST_REPEAT_CLICK_INTERVAL_TIME_MS = 300L
  * @author xpleemoon
  */
 open class PreventFastRepeatClickExtension {
+    /**
+     * 是否开启调试日志
+     */
+    @Input
+    var enableDebugLog: Boolean = true
+
     /**
      * 拦截快速点击的默认间隔时间
      */

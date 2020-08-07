@@ -3,6 +3,8 @@ package com.xpleemoon.plugin.click.transform
 import com.android.build.api.transform.*
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.android.ide.common.internal.WaitableExecutor
+import com.xpleemoon.plugin.click.LogUtils
+import com.xpleemoon.plugin.click.PLUGIN_NAME
 import com.xpleemoon.plugin.click.asm.utils.weavePreventFastRepeatClick2ClassByteArray
 import com.xpleemoon.plugin.click.asm.utils.weavePreventFastRepeatClick2ClassFile
 import com.xpleemoon.plugin.click.extension.PreventFastRepeatClickExtension
@@ -19,15 +21,8 @@ import java.util.zip.ZipOutputStream
 /**
  * @author xpleemoon
  */
-class PreventFastRepeatClickTransform(project: Project) :
+class PreventFastRepeatClickTransform(private val preventFastRepeatClickExtension: PreventFastRepeatClickExtension) :
     Transform() {
-    /**
-     * 由于gradle编译有三个阶段（init，config和execute），同时extension类型通常是在gradle config阶段完成赋值的，
-     * 所以为了安全使用extension，需要确保已经完成config。
-     * 而当前类的[transform]方法处于gradle execute阶段，因此在该方法中可以安全的使用当前extension
-     */
-    private val preventFastRepeatClickExtension =
-        project.extensions.create("preventFastRepeatClick", PreventFastRepeatClickExtension::class.java)
 
     override fun getName(): String = javaClass.simpleName
 

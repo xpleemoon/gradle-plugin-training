@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -12,20 +11,31 @@
             android:layout_height="wrap_content"
             android:text="上次点击时间：无"
             android:textColor="@android:color/holo_red_dark"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
+
     <TextView
             android:id="@+id/current_time_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="当前点击时间：无"
             android:layout_below="@id/last_time_tv"
+            android:text="当前点击时间：无"
             android:textColor="@android:color/holo_red_dark"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
+
+    <TextView
+            android:id="@+id/interval_time_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/current_time_tv"
+            android:text="两次点击间隔时间：无"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="24sp" />
+
     <Button
             android:id="@+id/fast_click_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="快速点击"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:text="快速点击" />
 
 </RelativeLayout>

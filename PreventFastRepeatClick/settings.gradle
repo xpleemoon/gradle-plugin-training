@@ -1,1 +1,3 @@
+include ':listener2'
+include ':listener1'
 include ':app', ':prevent-fast-repeat-click', ':prevent-fast-repeat-click-api'

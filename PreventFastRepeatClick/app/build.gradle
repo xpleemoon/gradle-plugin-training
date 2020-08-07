@@ -4,7 +4,9 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'xpleemoon-prevent-fast-repeat-click'
 
 preventFastRepeatClick {
-    defaultIntervalTimeMs 500
+//    enableDebugLog false
+    // 更新配置后请先clean，防止APK增量编译导致无法生效
+    defaultIntervalTimeMs 2000
 }
 
 android {
@@ -25,6 +27,12 @@ android {
     }
 }
 
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -33,5 +41,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 //    implementation project(':prevent-fast-repeat-click-api')
-    implementation 'com.xpleemoon.plugin:prevent-fast-repeat-click-api:0.1.0'
+    implementation 'com.xpleemoon.plugin:prevent-fast-repeat-click-api:0.2.0'
+    implementation project(path: ':listener1')
+    implementation(name: 'listener2-1.0', ext: 'aar')
 }

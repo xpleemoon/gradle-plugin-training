@@ -1,5 +1,7 @@
 package com.xpleemoon.plugin.click.asm
 
+import com.xpleemoon.plugin.click.LogUtils
+import com.xpleemoon.plugin.click.PLUGIN_NAME
 import org.objectweb.asm.*
 
 /**
@@ -35,7 +37,8 @@ class PreventFastRepeatClickClassVisitor(cv: ClassVisitor, private val defaultIn
     ): MethodVisitor {
         val mv = super.visitMethod(access, name, desc, signature, exceptions)
         return if (!nameOfOnClickListenerImpl.isNullOrEmpty()
-            && access == Opcodes.ACC_PUBLIC
+            // lambda表达式在编译时，会被添加final修饰符
+            && (access == Opcodes.ACC_PUBLIC|| access ==Opcodes.ACC_PUBLIC or Opcodes.ACC_FINAL)
             && name.equals("onClick")
             && desc.equals("(Landroid/view/View;)V")
         ) {
@@ -72,7 +75,7 @@ class PreventFastRepeatClickClassVisitor(cv: ClassVisitor, private val defaultIn
                         mv.visitLdcInsn(intervalTimeMs)
                         mv.visitMethodInsn(
                             Opcodes.INVOKESTATIC,
-                            "com/xpleemoon/plugin/click/utils/FastRepeatClickUtilsKt",
+                            "com/xpleemoon/plugin/click/utils/FastRepeatClickUtils",
                             "isPreventFastRepeatClick",
                             "(Landroid/view/View;J)Z",
                             false
@@ -83,9 +86,9 @@ class PreventFastRepeatClickClassVisitor(cv: ClassVisitor, private val defaultIn
                         mv.visitInsn(Opcodes.RETURN)
                         mv.visitLabel(prevent_fast_repeat_click_label)
 
-                        println("prevent-fast-repeat-click：向$nameOfOnClickListenerImpl.${name}方法织入快速点击拦截字节码，intervalTimeMs = $intervalTimeMs")
+                        LogUtils.d("${PLUGIN_NAME}：向$nameOfOnClickListenerImpl.${name}方法织入快速点击拦截字节码，intervalTimeMs = $intervalTimeMs")
                     } else {
-                        println("prevent-fast-repeat-click：$nameOfOnClickListenerImpl.${name}方法不做字节码织入处理，isExclude = $isExcludeWeave, intervalTimeMs = $intervalTimeMs")
+                        LogUtils.d("${PLUGIN_NAME}：$nameOfOnClickListenerImpl.${name}方法不做字节码织入处理，isExclude = $isExcludeWeave, intervalTimeMs = $intervalTimeMs")
                     }
                 }
             }
